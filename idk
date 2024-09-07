@@ -1,0 +1,233 @@
+local Players = game:GetService("Players")
+local TeleportService = game:GetService("TeleportService")
+local Chat = game:GetService("Chat")
+local Workspace = game:GetService("Workspace")
+
+-- Get the local player
+local lp = Players.LocalPlayer
+local settings = {
+    antiGearsEnabled = false, -- Anti-gears is disabled by default
+    antiVgEnabled = false, -- Anti-vampire gear is disabled by default
+    antiAbuseEnabled = false -- Anti-abuse is disabled by default
+}
+
+-- Function to send a chat message
+local function sendChatMessage(message)
+    Chat:Chat(lp.Character.Head, message, Enum.ChatColor.Blue)
+end
+
+-- Function to handle chat messages
+local function onChatMessage(player, message)
+    local lowerMessage = message:lower()
+
+    local function handleGearCommand(target)
+        if settings.antiGearsEnabled then
+            game.Players:chat("gears have been disabled in this server!")
+            if target == "all" then
+                for _, p in ipairs(Players:GetPlayers()) do
+                    for _ = 1, 10 do
+                        game.Players:chat("respawn " .. p.Name)
+                        task.wait(0.1)
+                    end
+                end
+            elseif target == "others" then
+                for _, p in ipairs(Players:GetPlayers()) do
+                    if p ~= lp then
+                        for _ = 1, 10 do
+                            game.Players:chat("respawn " .. p.Name)
+                            task.wait(0.1)
+                        end
+                    end
+                end
+            else
+                for _ = 1, 10 do
+                    game.Players:chat("respawn " .. target)
+                    task.wait(0.1)
+                end
+            end
+        end
+    end
+
+    if lowerMessage:find("gear me") then
+        handleGearCommand(player.Name)
+    elseif lowerMessage:find("gear all") then
+        handleGearCommand("all")
+    elseif lowerMessage:find("gear others") then
+        handleGearCommand("others")
+    elseif lowerMessage:find("^%-music%d$") then
+        local musicId = {
+            ["-music1"] = "7266001792",
+            ["-music2"] = "9245561450",
+            ["-music3"] = "5410086218",
+            ["-music4"] = "6555905311",
+            ["-music5"] = "8756309991"
+        }
+        local id = musicId[lowerMessage]
+        if id then
+            game.Players:chat("music " .. id)
+            game.Players:chat("h playing '" .. (lowerMessage:sub(8) or "???") .. "'")
+        end
+    elseif lowerMessage:find("^%-banhammer$") then
+        game.Players:chat("gear me 10468797")
+    elseif lowerMessage:find("^%-antikill$") then
+        game.Players:chat("h anti kill enabled!")
+        lp.Character.Humanoid.Died:Connect(function()
+            game.Players:chat("reset me")
+        end)
+    elseif lowerMessage:find("^%-disableantikill$") then
+        game.Players:chat("h anti kill disabled!")
+        lp.Character.Humanoid.Died:Disconnect()
+    elseif lowerMessage:find("^%-kick%s+%w+$") then
+        local playerName = lowerMessage:match("^%-kick%s+(%w+)$")
+        local player = Players:FindFirstChild(playerName)
+        if player then
+            while player do
+                game.Players:chat("hat " .. playerName .. " 18137588505")
+                game.Players:chat("blind " .. playerName)
+                game.Players:chat("pm " .. playerName .. " Ã°Å¸Ëœâ€š")
+                game.Players:chat("setgrav " .. playerName .. " -10000")
+                game.Players:chat("jump " .. playerName)
+                game.Players:chat("ff " .. playerName)
+                game.Players:chat("gear " .. playerName .. " 253519495")
+                task.wait(1)
+            end
+        end
+    elseif lowerMessage:find("^%-antivg$") then
+        settings.antiVgEnabled = true
+        game.Players:chat("h anti vampire gear enabled!")
+    elseif lowerMessage:find("^%-disableantivg$") then
+        settings.antiVgEnabled = false
+        game.Players:chat("h anti vampire gear disabled!")
+    elseif lowerMessage:find("^/c system$") then
+        game.Players:chat("h " .. lp.Name .. " is using c system sneaky!")
+    elseif lowerMessage:find("^%-check$") then
+        if lp.Name ~= "HelloNoobsloljkw" and lp.Name ~= "MarkDwayne_Pro" then
+            game.Players:chat("h i indeed use Quantum.")
+        end
+    elseif lowerMessage:find("^%-antigears$") then
+        settings.antiGearsEnabled = true
+        game.Players:chat("h Anti-gears enabled!")
+    elseif lowerMessage:find("^%-disableantigears$") then
+        settings.antiGearsEnabled = false
+        game.Players:chat("h Anti-gears disabled!")
+    elseif lowerMessage:find("^%-rejoin$") then
+        TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, lp)
+    elseif lowerMessage:find("^%-antiabuse$") then
+        settings.antiAbuseEnabled = not settings.antiAbuseEnabled
+        game.Players:chat("h anti abuse " .. (settings.antiAbuseEnabled and "enabled!" or "disabled!"))
+    elseif settings.antiAbuseEnabled then
+        if lowerMessage:find("blind " .. lp.Name:lower()) then
+            game.Players:chat("unblind " .. lp.Name)
+        elseif lowerMessage:find("jail " .. lp.Name:lower()) then
+            game.Players:chat("unjail " .. lp.Name)
+        elseif lowerMessage:find("punish " .. lp.Name:lower()) then
+            game.Players:chat("unpunish " .. lp.Name)
+        end
+    end
+end
+
+-- Function to bind chat event to a player
+local function bindChatToPlayer(player)
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end
+
+-- Bind chat event to players already in the game
+for _, player in ipairs(Players:GetPlayers()) do
+    bindChatToPlayer(player)
+end
+
+-- Bind chat event to new players who join
+Players.PlayerAdded:Connect(function(player)
+    bindChatToPlayer(player)
+    onPlayerAdded(player)
+end)
+
+-- Function to handle player joining
+local function onPlayerAdded(player)
+    if player.Name == "HelloNoobsloljkw" then
+        game.Players:chat("h the owner of quantum has joined!")
+    end
+
+    if player ~= lp then
+        local welcomeMessage = string.format(
+            "h welcome %s\n" ..
+            "h user: %s\n" ..
+            "h display name: %s",
+            player.Name, player.Name, player.DisplayName
+        )
+        game.Players:chat(welcomeMessage)
+    end
+end
+
+-- Check if specific player is already in the server
+local function checkExistingPlayer()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Name == "HelloNoobsloljkw" then
+            game.Players:chat("h The owner of quantum has joined!")
+            break
+        end
+    end
+end
+
+-- Function to grab admin pad
+local function admingrab()
+    while true do
+        local adminPads = Workspace.Terrain:FindFirstChild("_Game")
+            and Workspace.Terrain["_Game"]:FindFirstChild("Admin")
+            and Workspace.Terrain["_Game"].Admin:FindFirstChild("Pads")
+
+        if adminPads then
+            local playerAdminPad = adminPads:FindFirstChild(lp.Name .. "'s admin")
+            if not playerAdminPad then
+                local touchPad = adminPads:FindFirstChild("Touch to get admin")
+                if touchPad then
+                    local padHead = touchPad:FindFirstChild("Head")
+                    if padHead then
+                        local padCFrame = padHead.CFrame
+                        task.wait()
+                        padHead.CanCollide = false
+                        repeat task.wait() until lp.Character and lp.Character:FindFirstChild("HumanoidRootPart")
+                        padHead.CFrame = lp.Character.HumanoidRootPart.CFrame
+                        task.wait()
+                        padHead.CFrame = padCFrame
+                        padHead.CanCollide = true
+                    else
+                        warn("Pad Head not found.")
+                    end
+                else
+                    warn("Touch to get admin pad not found.")
+                end
+            end
+        else
+            warn("Admin Pads not found.")
+        end
+
+        task.wait()
+    end
+end
+
+-- Check if local player exists
+if lp then
+    print("script is running enjoy broski")
+
+    -- Wait 5 seconds before sending the initial chat message
+    task.wait(5)
+    game.Players:chat("h quantum loaded!\n\n\n")
+
+    -- Start admin grab
+    coroutine.wrap(admingrab)()
+
+    -- Load Infinite Yield
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+
+    -- Connect chat listeners for local player and other players
+    bindChatToPlayer(lp)
+    Players.PlayerAdded:Connect(onPlayerAdded)
+
+    -- Check if the specific player is already in the server
+    checkExistingPlayer()
+else
+    warn("LocalPlayer not found.")
+end
